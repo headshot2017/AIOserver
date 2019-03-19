@@ -720,14 +720,14 @@ class AIOserver(object):
 		try:
 			data = self.ms_tcp.recv(4096)
 		except (socket.error, socket.timeout) as e:
-			if e.args[0] == 10035 or e.args[0] == "timed out":
+			if e.args[0] == 10035 or e.errno == 11 or e.args[0] == "timed out":
 				return True
 			else:
 				print "[masterserver]", "connection to master server lost, retrying."
 				return False
 		
 		if not data:
-			print "[masterserver]", "connection to master server lost, retrying."
+			print "[masterserver]", "no data from master server, retrying."
 			return False
 		
 		t = data.split("%")
