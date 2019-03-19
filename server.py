@@ -15,9 +15,11 @@ AllowBot = True # set this to True to allow usage of the /bot command (NOTE: to 
 ################################
 
 ############CONSTANTS#############
-#######Do not modify any of these.#########
 ECONSTATE_CONNECTED = 0
 ECONSTATE_AUTHED = 1
+ECONCLIENT_TELNET = 0
+ECONCLIENT_NETCAT = 1
+ECONCLIENT_OTHER = 2
 ################################
 
 def string_unpack(buf):
@@ -957,7 +959,7 @@ class AIOserver(object):
 							color = 4294967295 #set to exactly white
 						
 						self.sendChat(self.getCharName(self.clients[client].CharID), chatmsg[:255], blip, self.clients[client].zone, color, realization, client, evidence)
-						print "[chat][IC]", "%d,%d,%s: %s" % (client, self.clients[client].zone, self.getCharName(self.clients[client].CharID), chatmsg)
+						#print "[chat][IC]", "%d,%d,%s: %s" % (client, self.clients[client].zone, self.getCharName(self.clients[client].CharID), chatmsg)
 					
 					elif header == AIOprotocol.OOC:
 						try:
@@ -986,7 +988,6 @@ class AIOserver(object):
 						else:
 							if chatmsg[0] != "/":
 								self.sendOOC(self.clients[client].OOCname, chatmsg, zone=self.clients[client].zone)
-								print "[chat][OOC]", "%d,%d,%s: %s" % (client, self.clients[client].zone, self.clients[client].OOCname, chatmsg)
 							else: #commands.
 								cmdargs = chatmsg.split(" ")
 								cmd = cmdargs.pop(0).lower().replace("/", "", 1)
@@ -1630,8 +1631,15 @@ class AIOserver(object):
 						client[0].send("invalid zone ID. hit enter for help.\n")
 						continue
 					
-					txt = data.replace(str(var)+" ", "")
-					print "[chat][IC] -1,%d,%s: %s" % (var, "ECON USER %d" % i, txt)
+					al = list(data)
+					for i in range(len(str(var))):
+						del al[0]
+					if len(al) > 0:
+						del al[0]
+					else:
+						al.append(" ")
+					txt ="".join(al)
+					#print "[chat][IC] -1,%d,%s: %s" % (var, "ECON USER %d" % i, txt)
 					self.sendChat("ECON USER %d" % i, txt, "male", var, 4294901760, 0, 0, 0)
 	
 	def econPrint(self, text, dest=-1):
@@ -1678,7 +1686,7 @@ class AIOserver(object):
 					continue
 				
 				txt = txt.replace(str(var)+" ", "")
-				print "[chat][IC] -1,%d,%s: %s" % (var, ServerOOCName, txt)
+				#print "[chat][IC] -1,%d,%s: %s" % (var, ServerOOCName, txt)
 				self.sendChat(ServerOOCName, txt, "male", var, 4294901760, 0, 0, 0)
 			
 if __name__ == "__main__":
